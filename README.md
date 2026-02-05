@@ -103,6 +103,8 @@ function init(){
 
 // Restart runden
 function restartGame(){ init(); }
+
+// Pause
 function togglePause(){ if(!gameOver) paused=!paused; }
 
 // Unlock pistol
@@ -152,7 +154,7 @@ function updateUI(){
 document.addEventListener("keydown", e=>{
   keys[e.key.toLowerCase()] = true; 
   if(e.key==='p'||e.key==='P') togglePause();
-  if(e.key==='r'||e.key==='R') restartGame(); // ← R for restart runde
+  if(e.key==='r'||e.key==='R') restartGame(); // ← R for restart runden
 });
 document.addEventListener("keyup", e=>keys[e.key.toLowerCase()] = false);
 
@@ -162,12 +164,12 @@ function spawnEnemy(){
   for(let i=0;i<spawnCount;i++){
     const r=Math.random();
     if(r<0.75){
-      enemies.push({x:Math.random()*370,y:-40,w:30,h:30,speedY:(1.8 + score/2000)*GAME_SPEED,speedX:0,hp:1,color:'#f44'});
+      enemies.push({x:Math.random()*370,y:-40,w:30,h:30,speedY:(1.8 + score/2000)*GAME_SPEED,speedX:0,hp:1,color:'#f44', coins:10});
     } else if(r<0.95){
       const left=Math.random()<0.5;
-      enemies.push({x:left?-40:440,y:Math.random()*250,w:35,h:35,speedY:1.5*GAME_SPEED,speedX:left?2.5*GAME_SPEED:-2.5*GAME_SPEED,hp:1,color:'#fa0'});
+      enemies.push({x:left?-40:440,y:Math.random()*250,w:35,h:35,speedY:1.5*GAME_SPEED,speedX:left?2.5*GAME_SPEED:-2.5*GAME_SPEED,hp:1,color:'#fa0', coins:10});
     } else {
-      enemies.push({x:150,y:-80,w:100,h:80,speedY:1*GAME_SPEED,speedX:1*GAME_SPEED,hp:20,isBoss:true,color:'#a4f'});
+      enemies.push({x:150,y:-80,w:100,h:80,speedY:1*GAME_SPEED,speedX:1*GAME_SPEED,hp:20,isBoss:true,color:'#a4f', coins:50});
     }
   }
 }
@@ -209,7 +211,7 @@ function update(){
         e.hp--; bullets.splice(bi,1);
         if(e.hp<=0){
           enemies.splice(ei,1);
-          coins += e.isBoss?300:50;
+          coins += e.coins; // ← hver fiende gir coins fra feltet
           score += e.isBoss?1000:200;
           saveProgress(); updateUI();
         }
