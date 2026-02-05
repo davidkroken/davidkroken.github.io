@@ -35,7 +35,7 @@ button { padding:10px 15px; font-size:16px; cursor:pointer; }
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const GAME_SPEED = 0.5;
+const GAME_SPEED = 1;
 
 let player, enemies, bullets, explosions, stars;
 let score, gameOver=false, paused=false;
