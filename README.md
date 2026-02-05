@@ -44,6 +44,7 @@
   <button onclick="togglePause()">Pause</button>
   <button onclick="restartGame()">Restart</button>
   <button onclick="upgradeWeapon()">Upgrade Weapon</button>
+  <button onclick="resetData()">Reset Data</button>
   <div id="coins">Coins: 0</div>
   <div id="upgrade">Upgrade cost: 0</div>
 </div>
@@ -54,14 +55,13 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// 🌌 GLOBAL SPEED MULTIPLIER
 const GAME_SPEED = 0.5;
 
 let player, enemies, bullets, explosions, stars;
 let score, gameOver=false, paused=false;
 let keys={}, shootCooldown=0;
 
-// 🔒 LAGRET DATA
+// Lagret data
 let coins = Number(localStorage.getItem("coins")) || 0;
 let upgradeLevel = Number(localStorage.getItem("upgradeLevel")) || 0;
 let highscore = Number(localStorage.getItem("hard_highscore")) || 0;
@@ -69,13 +69,23 @@ let highscore = Number(localStorage.getItem("hard_highscore")) || 0;
 let bulletSpeed = (8 + upgradeLevel * 2) * GAME_SPEED;
 let bulletsPerShot = 1 + upgradeLevel;
 
-// ⚡ Oppgraderingskostnad: gjør det enda dyrere enn før
 function upgradeCost(){ 
-  return Math.floor(200 * Math.pow(2, upgradeLevel)); // eksponentiell og høyere startpris
+  return Math.floor(200 * Math.pow(2, upgradeLevel));
 }
 function saveProgress(){
   localStorage.setItem("coins", coins);
   localStorage.setItem("upgradeLevel", upgradeLevel);
+}
+
+function resetData(){
+  localStorage.removeItem("coins");
+  localStorage.removeItem("upgradeLevel");
+  localStorage.removeItem("hard_highscore");
+  coins = 0;
+  upgradeLevel = 0;
+  highscore = 0;
+  updateUI();
+  alert("Data reset!");
 }
 
 function init(){
@@ -106,22 +116,55 @@ function updateUI(){
   document.getElementById("upgrade").innerText = `Upgrade cost: ${upgradeCost()}`;
 }
 
-// 🎮 INPUT – legg til A/D som venstre/høyre
 document.addEventListener("keydown", e=>{
   keys[e.key.toLowerCase()] = true; 
   if(e.key==='p'||e.key==='P') togglePause();
 });
 document.addEventListener("keyup", e=>keys[e.key.toLowerCase()] = false);
 
+// Spawner flere fiender samtidig, med forskjellig hastighet
 function spawnEnemy(){
-  const r=Math.random();
-  if(r<0.8){
-    enemies.push({x:Math.random()*370,y:-40,w:30,h:30,speedY:(2.5 + score/2000)*GAME_SPEED,speedX:0,hp:1,color:'#f44'});
-  } else if(r<0.93){
-    const left=Math.random()<0.5;
-    enemies.push({x:left?-40:440,y:Math.random()*250,w:35,h:35,speedY:1.5*GAME_SPEED,speedX:left?1.5*GAME_SPEED:-1.5*GAME_SPEED,hp:1,color:'#fa0'});
-  } else {
-    enemies.push({x:150,y:-80,w:100,h:80,speedY:1*GAME_SPEED,speedX:1*GAME_SPEED,hp:20,isBoss:true,color:'#a4f'});
+  const spawnCount = 2 + Math.floor(Math.random()*2); // 2 eller 3 fiender
+  for(let i=0;i<spawnCount;i++){
+    const r=Math.random();
+    if(r<0.8){
+      // Vanlige fiender går litt tregere
+      enemies.push({
+        x:Math.random()*370,
+        y:-40,
+        w:30,
+        h:30,
+        speedY:(2 + score/2000)*GAME_SPEED, // tregere enn før
+        speedX:0,
+        hp:1,
+        color:'#f44'
+      });
+    } else if(r<0.93){
+      // Side-fiender går litt raskere
+      const left=Math.random()<0.5;
+      enemies.push({
+        x:left?-40:440,
+        y:Math.random()*250,
+        w:35,
+        h:35,
+        speedY:1.5*GAME_SPEED,
+        speedX:left?2*GAME_SPEED:-2*GAME_SPEED, // raskere sideveis
+        hp:1,
+        color:'#fa0'
+      });
+    } else {
+      enemies.push({
+        x:150,
+        y:-80,
+        w:100,
+        h:80,
+        speedY:1*GAME_SPEED,
+        speedX:1*GAME_SPEED,
+        hp:20,
+        isBoss:true,
+        color:'#a4f'
+      });
+    }
   }
 }
 
@@ -141,7 +184,6 @@ function update(){
 
   stars.forEach(s=>{ s.y += s.s*GAME_SPEED; if(s.y>600)s.y=0; });
 
-  // Venstre/høyre med både piltaster og A/D
   if((keys['arrowleft'] || keys['a']) && player.x>0) player.x-=player.speed;
   if((keys['arrowright'] || keys['d']) && player.x<365) player.x+=player.speed;
 
@@ -207,7 +249,7 @@ function draw(){
   if(gameOver){ ctx.font='30px Arial'; ctx.fillText('GAME OVER',100,300); }
 }
 
-// 🚀 LOADING SCREEN (kun første gang)
+// Loading screen (kun første gang)
 if(!localStorage.getItem('visited')){
   setTimeout(()=>{
     document.getElementById('loading').style.display='none';
@@ -218,7 +260,7 @@ if(!localStorage.getItem('visited')){
 }
 
 init();
-setInterval(spawnEnemy,1100); // færre fiender
+setInterval(spawnEnemy,800); // spawn oftere (flere fiender)
 (function loop(){ update(); draw(); requestAnimationFrame(loop); })();
 </script>
 </body>
