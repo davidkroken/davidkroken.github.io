@@ -77,6 +77,7 @@ function saveProgress(){
   localStorage.setItem("upgradeLevel", upgradeLevel);
 }
 
+// Reset knapp
 function resetData(){
   localStorage.removeItem("coins");
   localStorage.removeItem("upgradeLevel");
@@ -122,25 +123,25 @@ document.addEventListener("keydown", e=>{
 });
 document.addEventListener("keyup", e=>keys[e.key.toLowerCase()] = false);
 
-// Spawner flere fiender samtidig, med forskjellig hastighet
+// Flere fiender
 function spawnEnemy(){
-  const spawnCount = 2 + Math.floor(Math.random()*2); // 2 eller 3 fiender
+  const spawnCount = 3 + Math.floor(Math.random()*3); // 3-5 fiender
   for(let i=0;i<spawnCount;i++){
     const r=Math.random();
-    if(r<0.8){
-      // Vanlige fiender går litt tregere
+    if(r<0.75){
+      // Vanlige fiender (nedover) litt tregere
       enemies.push({
         x:Math.random()*370,
         y:-40,
         w:30,
         h:30,
-        speedY:(2 + score/2000)*GAME_SPEED, // tregere enn før
+        speedY:(1.8 + score/2000)*GAME_SPEED,
         speedX:0,
         hp:1,
         color:'#f44'
       });
-    } else if(r<0.93){
-      // Side-fiender går litt raskere
+    } else if(r<0.95){
+      // Side-fiender litt raskere
       const left=Math.random()<0.5;
       enemies.push({
         x:left?-40:440,
@@ -148,11 +149,12 @@ function spawnEnemy(){
         w:35,
         h:35,
         speedY:1.5*GAME_SPEED,
-        speedX:left?2*GAME_SPEED:-2*GAME_SPEED, // raskere sideveis
+        speedX:left?2.5*GAME_SPEED:-2.5*GAME_SPEED,
         hp:1,
         color:'#fa0'
       });
     } else {
+      // Boss
       enemies.push({
         x:150,
         y:-80,
@@ -249,7 +251,7 @@ function draw(){
   if(gameOver){ ctx.font='30px Arial'; ctx.fillText('GAME OVER',100,300); }
 }
 
-// Loading screen (kun første gang)
+// Loading screen
 if(!localStorage.getItem('visited')){
   setTimeout(()=>{
     document.getElementById('loading').style.display='none';
@@ -260,7 +262,7 @@ if(!localStorage.getItem('visited')){
 }
 
 init();
-setInterval(spawnEnemy,800); // spawn oftere (flere fiender)
+setInterval(spawnEnemy,700); // spawn oftere for flere fiender
 (function loop(){ update(); draw(); requestAnimationFrame(loop); })();
 </script>
 </body>
