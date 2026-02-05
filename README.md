@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
@@ -56,7 +55,7 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 // 🌌 GLOBAL SPEED MULTIPLIER
-const GAME_SPEED = 0.3;
+const GAME_SPEED = 0.5;
 
 let player, enemies, bullets, explosions, stars;
 let score, gameOver=false, paused=false;
