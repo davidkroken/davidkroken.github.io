@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
@@ -55,7 +56,7 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 // 🌌 GLOBAL SPEED MULTIPLIER
-const GAME_SPEED = 0.65; // 1 = normal, 0.5 = tregt
+const GAME_SPEED = 0.3;
 
 let player, enemies, bullets, explosions, stars;
 let score, gameOver=false, paused=false;
@@ -69,8 +70,9 @@ let highscore = Number(localStorage.getItem("hard_highscore")) || 0;
 let bulletSpeed = (8 + upgradeLevel * 2) * GAME_SPEED;
 let bulletsPerShot = 1 + upgradeLevel;
 
+// ⚡ Oppgraderingskostnad: gjør det enda dyrere enn før
 function upgradeCost(){ 
-  return Math.floor(150 * Math.pow(1.8, upgradeLevel)); 
+  return Math.floor(200 * Math.pow(2, upgradeLevel)); // eksponentiell og høyere startpris
 }
 function saveProgress(){
   localStorage.setItem("coins", coins);
@@ -105,9 +107,12 @@ function updateUI(){
   document.getElementById("upgrade").innerText = `Upgrade cost: ${upgradeCost()}`;
 }
 
-// 🎮 INPUT
-document.addEventListener("keydown",e=>{ keys[e.key]=true; if(e.key==='p'||e.key==='P')togglePause(); });
-document.addEventListener("keyup",e=>keys[e.key]=false);
+// 🎮 INPUT – legg til A/D som venstre/høyre
+document.addEventListener("keydown", e=>{
+  keys[e.key.toLowerCase()] = true; 
+  if(e.key==='p'||e.key==='P') togglePause();
+});
+document.addEventListener("keyup", e=>keys[e.key.toLowerCase()] = false);
 
 function spawnEnemy(){
   const r=Math.random();
@@ -137,8 +142,9 @@ function update(){
 
   stars.forEach(s=>{ s.y += s.s*GAME_SPEED; if(s.y>600)s.y=0; });
 
-  if(keys['ArrowLeft'] && player.x>0) player.x-=player.speed;
-  if(keys['ArrowRight'] && player.x<365) player.x+=player.speed;
+  // Venstre/høyre med både piltaster og A/D
+  if((keys['arrowleft'] || keys['a']) && player.x>0) player.x-=player.speed;
+  if((keys['arrowright'] || keys['d']) && player.x<365) player.x+=player.speed;
 
   if(keys[' '] && shootCooldown<=0){ shoot(); shootCooldown=18; }
   if(shootCooldown>0) shootCooldown--;
